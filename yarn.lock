@@ -3275,6 +3275,11 @@
     "dom-serializer" "0"
     "domelementtype" "1"
 
+"editor.md@^1.5.0":
+  "integrity" "sha1-b+Y2qIo5uFYT9T7ubst7c0irI78="
+  "resolved" "https://registry.npmjs.org/editor.md/-/editor.md-1.5.0.tgz"
+  "version" "1.5.0"
+
 "ee-first@1.1.1":
   "integrity" "sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0="
   "resolved" "https://registry.npmjs.org/ee-first/-/ee-first-1.1.1.tgz"
