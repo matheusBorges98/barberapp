@@ -1,4 +1,4 @@
-## ** Como iniciar o projeto **
+## Como iniciar o projeto
 
 #### git clone https://github.com/matheusBorges98/barberapp
 #### npm install
