@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Platform, PermissionsAndroid } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
+
+import Api from '../../Api';
 
 import {Text} from 'react-native';
 import { 
@@ -16,8 +18,13 @@ import {
         LocationArea,
         LocationInput,
         LocationFinder,
+
+        LoadingIcon,
+        ListArea
         
  } from './styles';
+
+ import BarberItem from '../../components/BarberItem.js'
 
 import SearchIcon from '../../assets/search.svg'
 import MyLocationIcon from '../../assets/my_location.svg'
@@ -27,26 +34,54 @@ export default () => {
     const navigation = useNavigation();
 
     const [locationText, setLocationText] = useState('');
-    const [coords, setCoods] = useState(null);
+    const [coords, setCoords] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [list, setList] = useState([]);
 
     const handleLocationFinder = async () =>{
-        setCoods(null);
-        let result = await request(
-            Platform.OS ==='ios'?
-                PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
-                :
-                PERMISSIONS.ANDROID.ACESS_FINE_LOCATION
-        );
+        setCoords(null);
+        let result = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+        
+        if(result === PermissionsAndroid.RESULTS.GRANTED){
+            setLoading(true);
+            setLocationText('');
+            setList([]);
 
-        if(result == 'granted'){
             Geolocation.getCurrentPosition((info)=>{
-                console.log(info);
+                setCoords(info.coords);
+                getBarbers();
             });
         }
             
 
     };
+
+    const getBarbers = async () =>{
+        setLoading(true);
+        setList([]);
+        
+        let res = await Api.getBarbers();
+        console.log(res)
+        
+        if(res.error == ''){
+            if(res.loc){
+               // res.loc = "Santa Catarina" Trabalhar na API proprietária para tratar dados.
+                setLocationText(res.loc);
+            }
+            setList(res.data);
+
+        }else{
+            alert("Error: "+res.error);
+        }
+
+        setLoading(false);
+    };
     
+    useEffect(()=>{
+        getBarbers();
+    }, []);
+
     return (
         <Container>
             <Scroller>
@@ -71,6 +106,15 @@ export default () => {
                     </LocationFinder>
                 </LocationArea>
 
+                {loading &&
+                    <LoadingIcon size="large" color="#FFFFFF"/>
+                }
+               
+                <ListArea>
+                    {list.map((item, k)=>(
+                        <BarberItem key={k} data={item} />
+                    ))}
+                </ListArea>
 
 
             </Scroller>
