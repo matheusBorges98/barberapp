@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Platform, PermissionsAndroid, RefreshControl } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
@@ -37,6 +37,7 @@ export default () => {
     const [coords, setCoords] = useState(null);
     const [loading, setLoading] = useState(false);
     const [list, setList] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleLocationFinder = async () =>{
         setCoords(null);
@@ -51,6 +52,8 @@ export default () => {
             Geolocation.getCurrentPosition((info)=>{
                 setCoords(info.coords);
                 getBarbers();
+                onRefresh();
+                 getBarbers();
             });
         }
             
@@ -60,12 +63,21 @@ export default () => {
     const getBarbers = async () =>{
         setLoading(true);
         setList([]);
+
+        let lat = null;
+        let lng = null;
         
-        let res = await Api.getBarbers();
+        if(coords){
+            lat = coords.latitude;
+            lng = coords.longitude;
+        }
+        
+        let res = await Api.getBarbers(lat, lng, locationText);
         console.log(res)
         
         if(res.error == ''){
             if(res.loc){
+                console.log(res.loc)
                // res.loc = "Santa Catarina" Trabalhar na API proprietária para tratar dados.
                 setLocationText(res.loc);
             }
@@ -82,9 +94,21 @@ export default () => {
         getBarbers();
     }, []);
 
+    const onRefresh = () => {
+        setRefreshing(false);
+        getBarbers();
+    }
+
+    const handleLocationSearch = () => {
+        setCoords({});
+        getBarbers();
+    }
+
     return (
         <Container>
-            <Scroller>
+            <Scroller refreshControll={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
                 
                 <HeaderArea>
                     <HeaderTittle numberOfLines={2}> Encontre o seu barbeiro favorito </HeaderTittle>
@@ -99,6 +123,7 @@ export default () => {
                         placeholderTextColor="#FFFFFF"
                         value={locationText}
                         onChangeText={t=>setLocationText(t)}
+                        onEndEditing={handleLocationSearch}
 
                      />
                     <LocationFinder onPress={handleLocationFinder}>

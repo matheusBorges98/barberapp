@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
-//import Stars from '../components/Stars';
+import Stars from '../components/Stars';
 
 const Area = styled.TouchableOpacity`
     background-color: #FFFFFF;
@@ -49,7 +49,7 @@ export default ({data}) => {
             <InfoArea>
                 <UserName>{data.name}</UserName>
 
-                {/* <Stars stars={data.stars} showNumber={true} /> */}
+                <Stars stars={data.stars} showNumber={true} /> 
 
                 <SeeProfileButton>
                     <SeeProfileButtonText>Ver Perfil</SeeProfileButtonText>
